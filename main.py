@@ -389,12 +389,6 @@ def create_quizzes_for_section(section: str):
 
 
 def create_directories():
-    create_directory("./research_projects")
-    create_directory("./pdfs")
-    create_directory("./plans")
-    create_directory("./text_files")
-    create_directory("./summaries")
-    create_directory("./parameters")
     create_directory(f"./research_projects/{research_dirname}")
     create_directory(f"./research_projects/{research_dirname}/individual-sections")
 

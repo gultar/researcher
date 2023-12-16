@@ -1,4 +1,4 @@
-# Research Project Script README
+# Research Assistant Script README
 
 ## Overview
 
@@ -51,6 +51,56 @@ This script is designed to automate the process of conducting research and gener
 - `provide_explanations`, `split_section_in_subsections`, `isolate_topics`, `create_quizz`, `create_quizzes_for_section`: Functions for generating additional content and quizzes.
 - `load_research_data`, `create_research_plan`, `generate_research_content`, `generate_exercices_for_course`: High-level functions for executing the research project workflow.
 - `main`: The main function to run the entire script.
+
+## Parameter YAML File breakdown
+
+```yaml
+research_language: "English"        
+#You can output your content in any language supported by the LLM of your choice
+#Though, LLMs being what they are, they might mess it up a bit. You may have to try
+#multiple times.
+research_dirname: "lisp"            
+#This is where the files for your research will be stored
+research_filename: "lisp-language"  
+#Name of the research 'paper' file
+research_short_description: "A complete course on the LISP programming language" 
+#The short description is used as extra context when generating each topic or section
+research_description: |
+  A complete course on the LISP programming language.
+  Give detailed code examples.
+#The 'long' description is used to create the content plan, and to give extra instructions to the model
+convert_to_notebooks: True
+#Convert the research content to a series of Jupyter Notebooks
+urls_list: []
+#List of URLs to load and to gather data from
+pdfs_list:  []
+#List of PDFs to load and to gather data from
+text_files: []
+#List of Text files (non PDF) to load and to gather data from
+number_of_sources: 12
+#Number of web sources to gather data from, when doing a web search on DuckDuckGo
+summarize_sources: False
+#Summarize the entirety of the sources
+chunk_size: 500
+#Size of the text chunks. Bigger chunks mean more context, but can lead to loss of output tokens or loss of information
+#Bear in mind that the context window is limited, and that, by using 3-4 text chunks in a content generation prompt,
+#you run the risk of having an context-window error by fitting too many tokens in it.
+chunk_overlap: 20
+#This is to avoid having a piece of information being cut off in the middle, and allows for some overlay of two chunks
+preload_plan: False
+#Switch to True if you want to provide your own YAML content plan.
+#The preloaded plan need to fit the schema that is provided by default
+#- section: 1
+#  title: "section title"
+#  topics:
+#    - topic: "topic title"
+#    - description: "long topic description"
+#
+#You can have a single looong section, or break it up into separate sections.
+#The more sections you have, the more section files you will have
+preloaded_plan_path: "./plans/openai_assistants.yaml"
+#Store all of your plans in the 'plans' directory
+```
 
 ## Note
 
