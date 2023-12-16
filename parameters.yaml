@@ -1,0 +1,17 @@
+research_language: "English"
+research_dirname: "lisp"
+research_filename: "lisp-language"
+research_short_description: "A complete course on the LISP programming language"
+research_description: |
+  A complete course on the LISP programming language.
+  Give detailed code examples.
+convert_to_notebooks: True
+urls_list: []
+pdfs_list:  []
+text_files: []
+number_of_sources: 12
+summarize_sources: False
+chunk_size: 500
+chunk_overlap: 20
+preload_plan: False
+preloaded_plan_path: "./plans/openai_assistants.yaml"

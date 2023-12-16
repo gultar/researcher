@@ -1,0 +1,7 @@
+openai
+dotenv
+PyPDF2
+langchain
+playwright
+colorama
+nbformat
