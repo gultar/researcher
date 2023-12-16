@@ -97,7 +97,7 @@ preload_plan: False
 #    - description: "long topic description"
 #
 #You can have a single looong section, or break it up into separate sections.
-#The more sections you have, the more section files you will have
+#The more sections you have, the more section files you will have.
 preloaded_plan_path: "./plans/openai_assistants.yaml"
 #Store all of your plans in the 'plans' directory
 ```
