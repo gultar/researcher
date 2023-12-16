@@ -16,9 +16,6 @@ number_of_sections = 8
 # Extract values
 
 research_dirname = research_parameters.get('research_dirname')
-research_filename = research_parameters.get('research_filename')
-research_short_description = research_parameters.get('research_short_description')
-research_description = research_parameters.get('research_description')
 
 memory = LongTermMemory(
     f"./research_projects/{research_dirname}/{research_dirname}_memory",
@@ -51,7 +48,7 @@ agent_executor = create_conversational_retrieval_agent(llm, tools, verbose=True)
 print("==================================================")
 print("""
 [SYSTEM]: You are chatting with your Researcher Assistant. 
-Type 'exit' to end the conversation. 
+Type '!exit' to end the conversation. 
 Type '!ok' to submit.
 """)
 print("==================================================")
@@ -71,6 +68,9 @@ def multi_input(prompt):
             user_input = user_input.replace("!ok","")
             lines.append(user_input + '\n')
             break
+        elif "!exit" in user_input.lower():
+            lines.append(user_input + '\n')
+            break
         else:
             lines.append(user_input + '\n')
 
@@ -80,7 +80,7 @@ def multi_input(prompt):
 while True:
     user_input = multi_input("")
     # Exit the loop if the user types 'exit'
-    if 'exit\n' in user_input.lower():
+    if '!exit' in user_input.lower():
         print("Exiting chat...")
         break
     
