@@ -2,78 +2,122 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from datetime import date
 from typing import Optional
+import os
+import yaml
+
+load_dotenv()
+
+
+def _load_llm_params():
+    """Read LLM provider settings from parameters.yaml."""
+    try:
+        with open("./parameters.yaml", "r", encoding="utf-8") as f:
+            params = yaml.safe_load(f)
+        return params
+    except Exception:
+        return {}
+
+
+def create_client(params: dict = None):
+    """
+    Create an OpenAI-compatible client based on the llm_provider setting.
+
+    Supported providers:
+      - "openai"  : uses the standard OpenAI API (requires OPENAI_API_KEY env var)
+      - "ollama"  : uses a local Ollama server via its OpenAI-compatible endpoint
+                    (set ollama_base_url in parameters.yaml, default: http://localhost:11434)
+    """
+    if params is None:
+        params = _load_llm_params()
+
+    provider = params.get("llm_provider", "openai").lower()
+
+    if provider == "ollama":
+        base_url = params.get("ollama_base_url", "http://localhost:11434")
+        # Ollama exposes an OpenAI-compatible endpoint at /v1
+        if not base_url.endswith("/v1"):
+            base_url = base_url.rstrip("/") + "/v1"
+        return OpenAI(
+            base_url=base_url,
+            api_key="ollama",  # Ollama does not require a real key
+        )
+    else:
+        # Standard OpenAI - key is read from OPENAI_API_KEY env var
+        return OpenAI()
+
 
 class Agent:
-    def __init__(self, role="general", model="gpt-4-1106-preview", smaller_model="gpt-3.5-turbo-16k"):
-        # Initialize an empty array for messages
+    def __init__(
+        self,
+        role="general",
+        model=None,
+        smaller_model=None,
+        params: dict = None,
+    ):
+        if params is None:
+            params = _load_llm_params()
+
+        self.params = params
         self.initial_instructions = "You are a helpful assistant."
         self.messages = [{"role": "system", "content": self.initial_instructions}]
         self.role = role
+
+        # Model names: prefer explicit args, fall back to parameters.yaml, then hard defaults
+        provider = params.get("llm_provider", "openai").lower()
+        if model is None:
+            if provider == "ollama":
+                model = params.get("llm_model", "llama3")
+            else:
+                model = params.get("llm_model", "gpt-4o")
+        if smaller_model is None:
+            if provider == "ollama":
+                smaller_model = params.get("llm_smaller_model", model)
+            else:
+                smaller_model = params.get("llm_smaller_model", "gpt-4o-mini")
+
         self.model = model
         self.smaller_model = smaller_model
-        
-        load_dotenv()
-
-        self.client = OpenAI(
-        organization='org-89slefGLSVO0BZUSanFQus9v',
-        )
+        self.client = create_client(params)
 
         today = date.today()
         today = str(today)
 
     def log(self, text):
         return print(text)
-    
 
     def record(self, prompt: str):
-        # Add user's prompt to the messages
         self.messages.append({"role": "user", "content": prompt})
-        
         self.log(prompt)
-        # Use OpenAI API to get response
         response = self.client.chat.completions.create(
-            model=self.model,  # Use the desired model
-            messages=self.messages
+            model=self.model,
+            messages=self.messages,
         )
-
-        # Extract reply from the response
         reply = response.choices[0].message.content
-
-        # Add system's reply to the messages
         self.messages.append({"role": "assistant", "content": reply})
-
         return reply
 
-    def complete(self, prompt: str, temperature: Optional[int]=0):
-        # Add user's prompt to the messages
-        messages = [{"role": "system", "content": self.initial_instructions},{"role": "user", "content": prompt}]
-
+    def complete(self, prompt: str, temperature: Optional[float] = 0):
+        messages = [
+            {"role": "system", "content": self.initial_instructions},
+            {"role": "user", "content": prompt},
+        ]
         self.log(prompt)
-        # Use OpenAI API to get response
         response = self.client.chat.completions.create(
-            model=self.model,  # Use the desired model
+            model=self.model,
             messages=messages,
-            temperature=temperature
+            temperature=temperature,
         )
+        return response.choices[0].message.content
 
-        # Extract reply from the response
-        reply = response.choices[0].message.content
-
-        return reply
-    
-    def cheaper_complete(self, prompt: str, temperature: Optional[int]=0):
-        # Add user's prompt to the messages
-        
-        messages = [{"role": "system", "content": self.initial_instructions},{"role": "user", "content": prompt}]
+    def cheaper_complete(self, prompt: str, temperature: Optional[float] = 0):
+        messages = [
+            {"role": "system", "content": self.initial_instructions},
+            {"role": "user", "content": prompt},
+        ]
         self.log(prompt)
-        # Use OpenAI API to get response
         response = self.client.chat.completions.create(
-            model=self.smaller_model,  # Use the desired model
-            messages=messages
+            model=self.smaller_model,
+            messages=messages,
+            temperature=temperature,
         )
-
-        # Extract reply from the response
-        reply = response.choices[0].message.content
-
-        return reply
-
+        return response.choices[0].message.content
