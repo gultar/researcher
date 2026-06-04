@@ -1,7 +1,27 @@
-openai
+# LLM clients
+# openai>=1.30 provides the unified OpenAI-compatible client used for both OpenAI and Ollama
+openai>=1.30
 python-dotenv
-PyPDF2
-langchain
+
+# PDF parsing (replaces deprecated PyPDF2)
+pypdf
+
+# LangChain - split into community package as of v0.2
+langchain>=0.2
+langchain-community>=0.2
+
+# Embeddings & vector store
+sentence-transformers
+faiss-cpu
+
+# Web scraping
 playwright
+
+# Terminal colours
 colorama
+
+# Notebook conversion
 nbformat
+
+# YAML
+pyyaml
